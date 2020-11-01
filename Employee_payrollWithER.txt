@@ -1,0 +1,388 @@
+
+
+MySQL Shell 8.0.22
+
+Copyright (c) 2016, 2020, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  JS > \sql
+Switching to SQL mode... Commands end with ;
+ MySQL  SQL > \connect
+\connect [--mx|--mysqlx|--mc|--mysql] <URI>
+ MySQL  SQL > \connect root@localhost
+Creating a session to 'root@localhost'
+Fetching schema names for autocompletion... Press ^C to stop.
+Your MySQL connection id is 11 (X protocol)
+Server version: 8.0.22 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:33060+ ssl  SQL > use payroll_service;
+Default schema set to `payroll_service`.
+Fetching table and column names from `payroll_service` for auto-completion... Press ^C to stop.
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee_payroll;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name         | varchar(150) | NO   |     | NULL    |                |
+| phone_number | varchar(20)  | YES  |     | NULL    |                |
+| address      | varchar(200) | YES  |     | TBD     |                |
+| department   | varchar(150) | NO   |     | NULL    |                |
+| gender       | char(1)      | YES  |     | NULL    |                |
+| basic_pay    | double       | NO   |     | NULL    |                |
+| deductions   | double       | NO   |     | NULL    |                |
+| taxable_pay  | double       | NO   |     | NULL    |                |
+| tax          | double       | NO   |     | NULL    |                |
+| net_pay      | double       | NO   |     | NULL    |                |
+| start        | date         | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+12 rows in set (0.0016 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee_payroll;
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+| id | name    | phone_number | address | department | gender | basic_pay | deductions | taxable_pay | tax | net_pay | start      |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+|  1 | shubham | NULL         | NULL    |            | M      |     50000 |          0 |           0 |   0 |       0 | 2020-09-16 |
+|  2 | anant   | NULL         | NULL    |            | M      |     40000 |          0 |           0 |   0 |       0 | 2020-09-17 |
+|  4 | hazel   | NULL         | NULL    |            | F      |     42000 |          0 |           0 |   0 |       0 | 2020-08-02 |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+3 rows in set (0.0010 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > UPDATE employee_payroll SET department = 'Sales' WHERE name = 'hazel';
+Query OK, 1 row affected (0.2029 sec)
+
+Rows matched: 1  Changed: 1  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO employee_payroll(name,department,gender,basic_pay,deductions,taxable_pay,tax,net_pay,start) VALUES ('hazel', 'Marketing','F', 70000, 5000, 65000,5000,60000,'2020-08-02');
+Query OK, 1 row affected (0.1137 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee_payroll;
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+| id | name    | phone_number | address | department | gender | basic_pay | deductions | taxable_pay | tax  | net_pay | start      |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+|  1 | shubham | NULL         | NULL    |            | M      |     50000 |          0 |           0 |    0 |       0 | 2020-09-16 |
+|  2 | anant   | NULL         | NULL    |            | M      |     40000 |          0 |           0 |    0 |       0 | 2020-09-17 |
+|  4 | hazel   | NULL         | NULL    | Sales      | F      |     42000 |          0 |           0 |    0 |       0 | 2020-08-02 |
+|  5 | hazel   | NULL         | TBD     | Marketing  | F      |     70000 |       5000 |       65000 | 5000 |   60000 | 2020-08-02 |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+4 rows in set (0.0006 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > CREATE TABLE company(
+                                                  -> company_id INT PRIMARY KEY,
+                                                  -> company_name VARCHAR(200) NOT NULL);
+Query OK, 0 rows affected (1.9993 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > CREATE TABLE employee(
+                                                  -> id INT unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                                  -> company_id INT REFERENCES company(company_id),
+                                                  -> name VARCHAR(150) NOT NULL,
+                                                  -> phone_number VARCHAR(20) NOT NULL,
+                                                  -> address VARCHAR(50) NOT NULL DEFAULT 'TBD',
+                                                  -> gender CHAR(1) NOT NULL);
+Query OK, 0 rows affected (1.2421 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > CREATE TABLE department(
+                                                  -> dept_id INT PRIMARY KEY,
+                                                  -> dept_name VARCHAR(50) NOT NULL);
+Query OK, 0 rows affected (2.2161 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > CREATE TABLE employee_department(
+                                                  -> emp_id INT REFERENCES employee(id),
+                                                  -> dept_id INT REFERENCES department(dept_id));
+Query OK, 0 rows affected (1.2738 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO company VALUES(1, "reliance");
+Query OK, 1 row affected (0.2569 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO employee(company_id, name,phone_number, address, gender) VALUES(1, 'shubham', '7896541233', 'haryana', 'M'),(1,'anant','7412589633', 'bangalore', 'F'),(1,'hazel','7589641233','srinagar', 'F');
+Query OK, 3 rows affected (0.1437 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from company;
++------------+--------------+
+| company_id | company_name |
++------------+--------------+
+|          1 | reliance     |
++------------+--------------+
+1 row in set (0.0436 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee;
++----+------------+---------+--------------+-----------+--------+
+| id | company_id | name    | phone_number | address   | gender |
++----+------------+---------+--------------+-----------+--------+
+|  1 |          1 | shubham | 7896541233   | haryana   | M      |
+|  2 |          1 | anant   | 7412589633   | bangalore | F      |
+|  3 |          1 | hazel   | 7589641233   | srinagar  | F      |
++----+------------+---------+--------------+-----------+--------+
+3 rows in set (0.0006 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > CREATE TABLE payroll(
+                                                  -> id INT REFERENCES employee(id),
+                                                  -> basic_pay DOUBLE NOT NULL,
+                                                  -> deductions DOUBLE NOT NULL,
+                                                  -> taxable_pay DOUBLE NOT NULL,
+                                                  -> tax DOUBLE NOT NULL,
+                                                  -> net_pay DOUBLE NOT NULL);
+Query OK, 0 rows affected (2.0118 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INT payroll VALUES(1,70000,5000,65000,5000,60000), (2, 50000,5000,45000,5000,40000),(3,80000,10000,70000,10000,60000);
+ERROR: 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INT payroll VALUES(1,70000,5000,65000,5000,60000), (2, 50000,5000,45000,5000,400' at line 1
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO payroll VALUES(1,70000,5000,65000,5000,60000), (2, 50000,5000,45000,5000,40000),(3,80000,10000,70000,10000,60000);
+Query OK, 3 rows affected (0.2140 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT * FROM payroll;
++----+-----------+------------+-------------+-------+---------+
+| id | basic_pay | deductions | taxable_pay | tax   | net_pay |
++----+-----------+------------+-------------+-------+---------+
+|  1 |     70000 |       5000 |       65000 |  5000 |   60000 |
+|  2 |     50000 |       5000 |       45000 |  5000 |   40000 |
+|  3 |     80000 |      10000 |       70000 | 10000 |   60000 |
++----+-----------+------------+-------------+-------+---------+
+3 rows in set (0.0006 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO department VALUES(1,'sales'),(2,'marketing'),(3,'software');
+Query OK, 3 rows affected (0.2218 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT * FROM department;
++---------+-----------+
+| dept_id | dept_name |
++---------+-----------+
+|       1 | sales     |
+|       2 | marketing |
+|       3 | software  |
++---------+-----------+
+3 rows in set (0.0005 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > INSERT INTO employee_department VALUES(1,1),(2,3),(3,1),(3,2);
+Query OK, 4 rows affected (0.2061 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee_payroll;
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+| id | name    | phone_number | address | department | gender | basic_pay | deductions | taxable_pay | tax  | net_pay | start      |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+|  1 | shubham | NULL         | NULL    |            | M      |     50000 |          0 |           0 |    0 |       0 | 2020-09-16 |
+|  2 | anant   | NULL         | NULL    |            | M      |     40000 |          0 |           0 |    0 |       0 | 2020-09-17 |
+|  4 | hazel   | NULL         | NULL    | Sales      | F      |     42000 |          0 |           0 |    0 |       0 | 2020-08-02 |
+|  5 | hazel   | NULL         | TBD     | Marketing  | F      |     70000 |       5000 |       65000 | 5000 |   60000 | 2020-08-02 |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+4 rows in set (0.0438 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee_department;
++--------+---------+
+| emp_id | dept_id |
++--------+---------+
+|      1 |       1 |
+|      2 |       3 |
+|      3 |       1 |
+|      3 |       2 |
++--------+---------+
+4 rows in set (0.0005 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT gender, COUNT(id) FROM employee GROUP BY gender;
++--------+-----------+
+| gender | COUNT(id) |
++--------+-----------+
+| M      |         1 |
+| F      |         2 |
++--------+-----------+
+2 rows in set (0.0436 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT net_pay FROM payroll WHERE emp_id = (SELECT id FROM employee WHERE gender = 'F');
+ERROR: 1054: Unknown column 'emp_id' in 'where clause'
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT net_pay FROM payroll WHERE id = (SELECT id FROM employee WHERE gender = 'F');
+ERROR: 1242: Subquery returns more than 1 row
+ MySQL  localhost:33060+ ssl  payroll_service  SQL >
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > E
+                                                  ->
+                                                  -> SELECT net_pay FROM payroll WHERE id = (SELECT id FROM employee WHERE gender = 'M');
+ERROR: 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'E
+SELECT net_pay FROM payroll WHERE id = (SELECT id FROM employee WHERE gender =' at line 1
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT net_pay FROM payroll WHERE id = (SELECT id FROM employee WHERE gender = 'M');
++---------+
+| net_pay |
++---------+
+|   60000 |
++---------+
+1 row in set (0.0010 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT SUM(p.net_pay) FROM employee e left join payroll p on
+                                                  -> p.id = e.id
+                                                  -> group by e.gender;
++----------------+
+| SUM(p.net_pay) |
++----------------+
+|          60000 |
+|         100000 |
++----------------+
+2 rows in set (0.0337 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT AVG(p.net_pay) FROM employee e left join payroll p
+                                                  -> on p.id = e.id
+                                                  -> group by e.gender;
++----------------+
+| AVG(p.net_pay) |
++----------------+
+|          60000 |
+|          50000 |
++----------------+
+2 rows in set (0.0297 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT MAX(p.net_pay) FROM employee e left join payroll p
+                                                  -> on p.id = e.id
+                                                  -> GROUP BY e.gender;
++----------------+
+| MAX(p.net_pay) |
++----------------+
+|          60000 |
+|          60000 |
++----------------+
+2 rows in set (0.0308 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT MIN(p.net_pay) FROM employee e left join payroll p
+                                                  -> on  p.id = e.id
+                                                  -> GROUP BY e.gender;
++----------------+
+| MIN(p.net_pay) |
++----------------+
+|          60000 |
+|          40000 |
++----------------+
+2 rows in set (0.0008 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > SELECT * from employee_payroll;
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+| id | name    | phone_number | address | department | gender | basic_pay | deductions | taxable_pay | tax  | net_pay | start      |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+|  1 | shubham | NULL         | NULL    |            | M      |     50000 |          0 |           0 |    0 |       0 | 2020-09-16 |
+|  2 | anant   | NULL         | NULL    |            | M      |     40000 |          0 |           0 |    0 |       0 | 2020-09-17 |
+|  4 | hazel   | NULL         | NULL    | Sales      | F      |     42000 |          0 |           0 |    0 |       0 | 2020-08-02 |
+|  5 | hazel   | NULL         | TBD     | Marketing  | F      |     70000 |       5000 |       65000 | 5000 |   60000 | 2020-08-02 |
++----+---------+--------------+---------+------------+--------+-----------+------------+-------------+------+---------+------------+
+4 rows in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select net_pay from payroll p left join employee e
+                                                  -> on p.id = e.id
+                                                  -> WHERE e.name = 'shubham';
++---------+
+| net_pay |
++---------+
+|   60000 |
++---------+
+1 row in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee
+                                                  -> ADD FOREIGN KEY(company_id) REFERENCES company(id);
+ERROR: 3734: Failed to add the foreign key constraint. Missing column 'id' for constraint 'employee_ibfk_1' in the referenced table 'company'
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee
+                                                  -> ADD FOREIGN KEY(company_id) REFERENCES company(company_id);
+Query OK, 3 rows affected (4.7216 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > select * from employee
+                                                  -> ;
++----+------------+---------+--------------+-----------+--------+
+| id | company_id | name    | phone_number | address   | gender |
++----+------------+---------+--------------+-----------+--------+
+|  1 |          1 | shubham | 7896541233   | haryana   | M      |
+|  2 |          1 | anant   | 7412589633   | bangalore | F      |
+|  3 |          1 | hazel   | 7589641233   | srinagar  | F      |
++----+------------+---------+--------------+-----------+--------+
+3 rows in set (0.0006 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_department
+                                                  -> ADD PRIMARY KEY(emp;
+ERROR: 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 2
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int unsigned | NO   | PRI | NULL    | auto_increment |
+| company_id   | int          | YES  | MUL | NULL    |                |
+| name         | varchar(150) | NO   |     | NULL    |                |
+| phone_number | varchar(20)  | NO   |     | NULL    |                |
+| address      | varchar(50)  | NO   |     | TBD     |                |
+| gender       | char(1)      | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.0480 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_payroll
+                                                  -> ADD FOREIGN KEY(emp_id) REFERENCES employee(id);
+ERROR: 1072: Key column 'emp_id' doesn't exist in table
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee_department
+                                                  -> ;
++---------+------+------+-----+---------+-------+
+| Field   | Type | Null | Key | Default | Extra |
++---------+------+------+-----+---------+-------+
+| emp_id  | int  | YES  |     | NULL    |       |
+| dept_id | int  | YES  |     | NULL    |       |
++---------+------+------+-----+---------+-------+
+2 rows in set (0.0017 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_department
+                                                  -> ADD PRIMARY KEY(emp_id, dept_id);
+Query OK, 0 rows affected (2.9629 sec)
+
+Records: 0  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee_department;
++---------+------+------+-----+---------+-------+
+| Field   | Type | Null | Key | Default | Extra |
++---------+------+------+-----+---------+-------+
+| emp_id  | int  | NO   | PRI | NULL    |       |
+| dept_id | int  | NO   | PRI | NULL    |       |
++---------+------+------+-----+---------+-------+
+2 rows in set (0.0018 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_department
+                                                  -> ADD FOREIGN KEY(emp_id) REFERENCES employee(id);
+ERROR: 3780: Referencing column 'emp_id' and referenced column 'id' in foreign key constraint 'employee_department_ibfk_1' are incompatible.
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee
+                                                  -> MODIFY id INT;
+Query OK, 3 rows affected (4.8633 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_department
+                                                  -> ADD FOREIGN KEY(emp_id) REFERENCES employee(id);
+Query OK, 4 rows affected (2.3837 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE payroll
+                                                  -> ADD FOREIGN KEY(emp_id) REFERENCES employee(id);
+ERROR: 1072: Key column 'emp_id' doesn't exist in table
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe payroll;
++-------------+--------+------+-----+---------+-------+
+| Field       | Type   | Null | Key | Default | Extra |
++-------------+--------+------+-----+---------+-------+
+| id          | int    | YES  |     | NULL    |       |
+| basic_pay   | double | NO   |     | NULL    |       |
+| deductions  | double | NO   |     | NULL    |       |
+| taxable_pay | double | NO   |     | NULL    |       |
+| tax         | double | NO   |     | NULL    |       |
+| net_pay     | double | NO   |     | NULL    |       |
++-------------+--------+------+-----+---------+-------+
+6 rows in set (0.0459 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee_department;
++---------+------+------+-----+---------+-------+
+| Field   | Type | Null | Key | Default | Extra |
++---------+------+------+-----+---------+-------+
+| emp_id  | int  | NO   | PRI | NULL    |       |
+| dept_id | int  | NO   | PRI | NULL    |       |
++---------+------+------+-----+---------+-------+
+2 rows in set (0.0265 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| id           | int          | NO   | PRI | NULL    |       |
+| company_id   | int          | YES  | MUL | NULL    |       |
+| name         | varchar(150) | NO   |     | NULL    |       |
+| phone_number | varchar(20)  | NO   |     | NULL    |       |
+| address      | varchar(50)  | NO   |     | TBD     |       |
+| gender       | char(1)      | NO   |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+6 rows in set (0.0023 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE payroll
+                                                  -> ADD FOREIGN KEY(id) REFERENCES employee(id);
+Query OK, 3 rows affected (3.0615 sec)
+
+Records: 3  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe payroll;
++-------------+--------+------+-----+---------+-------+
+| Field       | Type   | Null | Key | Default | Extra |
++-------------+--------+------+-----+---------+-------+
+| id          | int    | YES  | MUL | NULL    |       |
+| basic_pay   | double | NO   |     | NULL    |       |
+| deductions  | double | NO   |     | NULL    |       |
+| taxable_pay | double | NO   |     | NULL    |       |
+| tax         | double | NO   |     | NULL    |       |
+| net_pay     | double | NO   |     | NULL    |       |
++-------------+--------+------+-----+---------+-------+
+6 rows in set (0.0017 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > ALTER TABLE employee_department
+                                                  -> ADD FOREIGN KEY(dept_id) REFERENCES department(dept_id);
+Query OK, 4 rows affected (5.5396 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  payroll_service  SQL > describe employee_department;
++---------+------+------+-----+---------+-------+
+| Field   | Type | Null | Key | Default | Extra |
++---------+------+------+-----+---------+-------+
+| emp_id  | int  | NO   | PRI | NULL    |       |
+| dept_id | int  | NO   | PRI | NULL    |       |
++---------+------+------+-----+---------+-------+
+2 rows in set (0.0428 sec)
+ MySQL  localhost:33060+ ssl  payroll_service  SQL >
